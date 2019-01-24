@@ -1,64 +1,73 @@
 <?php
-    session_start();
 
-    if ((!isset($_POST['login'])) || (!isset($_POST['password']))) {
-        header("Location: index.php");
-        exit();
-    }
+	session_start();
 
-    $_SESSION['login'] = $_POST['login'];
+	if((!isset($_POST['login'])) || (!isset($_POST['password']))) {
+		header('Location: index.php');
+		exit();
+	}
 
-    require_once "connect.php";
+	require_once "connect.php";
 
-    $login['login'] = htmlentities($_POST['login'], ENT_QUOTES, "UTF-8");
+	$polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
 
-    try {
-        $dbh = new PDO($dsn, $username, $passwd);
-        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "SELECT * FROM users WHERE users = :login";
-        $stmt = $dbh->prepare($sql);
+	if($polaczenie->connect_errno!=0) {
+		echo "Error: ".$polaczenie->connect_errno;
+	} else {
+		echo "Połączony";
 
-    } catch (PDOException $e) {
-        $_SESSION['error'] = "Connection failed:" . $e->getMessage();
-        header("Location: index.php");
-        exit();
-    }
+		$login = $_POST['login'];
+		$haslo = $_POST['password'];	
 
-    function error($error) {
-        $_SESSION['error'] = '<span style="color:red"> ' . $error . '</span>';
-        header("Location: index.php");
-    }
+		$login = htmlentities($login, ENT_QUOTES, "UTF-8");
 
-    if ($stmt->execute($login)) {
+		if($rezultat = @$polaczenie->query(
+			sprintf("SELECT * FROM uzytkownicy WHERE user='%s'",
+				mysqli_real_escape_string($polaczenie,$login)))) {
+			$ilu_userow = $rezultat->num_rows;
+			if($ilu_userow>0) {
+				$wiersz = $rezultat->fetch_assoc();
 
-        $userCount = $stmt->rowCount();
+				if(password_verify($haslo, $wiersz['pass'])) {
 
-        if ($userCount>0) {
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+					$_SESSION['zalogowany'] = true;
+					
+					$_SESSION['id'] = $wiersz['id'];
+					$_SESSION['user'] = $wiersz['user'];
+					$_SESSION['drewno'] = $wiersz['drewno'];
+					$_SESSION['kamien'] = $wiersz['kamien'];
+					$_SESSION['zboze'] = $wiersz['zboze'];
+					$_SESSION['email'] = $wiersz['email'];
+					$_SESSION['dnipremium'] = $wiersz['dnipremium'];
 
-            if (password_verify($_POST['password'], $result['pass'])) {
-                $_SESSION['logged'] = true;
+					unset($_SESSION['blad']);
 
-                $_SESSION += $result;
+					$rezultat->close();
 
-                unset($_SESSION['error']);
+					header("Location: gra.php");
+				} else {
+				$_SESSION['blad'] = '<span style="color:red">Nieprawidłowy login lub hasło!</span>';
+				$_SESSION['login1'] = mysqli_real_escape_string($polaczenie,$login);
+				$_SESSION['pass1'] = mysqli_real_escape_string($polaczenie,$haslo);
 
-                $stmt->closeCursor();
+				header("Location: index.php");
+				}
 
-                $dbh = null;
+			} else {
+				$_SESSION['blad'] = '<span style="color:red">Nieprawidłowy login lub hasło!</span>';
+				$_SESSION['login1'] = mysqli_real_escape_string($polaczenie,$login);
+				$_SESSION['pass1'] = mysqli_real_escape_string($polaczenie,$haslo);
 
-                header("Location: game.php");
-            } else {
-                error("Nieprawidłowe hasło");
-            }
+				header("Location: index.php");
+			}
+		} else {
+			echo "coś się zesrało";
+		}
+
+		$polaczenie->close();	
+	}
 
 
-        } else {
-            error("Nieprawidłowy login");
-        }
 
 
-    } else {
-        error("Niepoprawne zapytanie bazodanowe");
-    }
-
+?>

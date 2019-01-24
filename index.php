@@ -1,41 +1,54 @@
 <?php
-    session_start();
+	session_start();
 
-    if (isset($_SESSION['users'])) {
-        header("Location: game.php");
-        exit();
-    }
-
+	if(isset($_SESSION['zalogowany']) && ($_SESSION['zalogowany'] == true)) {
+		header('Location: gra.php');
+		exit();
+	}
 ?>
 
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-        <title>Osadnicy - gra przeglądarkowa</title>
-    </head>
-    <body>
-        Tylko tłuści ujrzeli koniec talerza - Spaślak z Chicago<br /><br />
+<!DOCTYPE HTML>
+<html lang="pl">
+<head>
+	<meta charset="utf-8">
+	<title>Sejf</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
 
-        Nie masz konta? <a href="register.php">Zarejestruj się już teraz!</a><br /><br />
+	<div class="menu">
+		<ul>
+			<li><a href="#">Home</a></li>
+			<li><a href="#">About</a></li>
+			<li><a href="#">Services</a></li>
+			<li><a href="#">Portfolio</a></li>
+			<li><a href="#">Our Team</a></li>
+			<li><a href="#">Contact Us</a></li>
+		</ul>
+	</div>
 
-        <?php
-            if (isset($_SESSION['error'])) {
-                echo $_SESSION['error'] . "<br /><br />";
-                unset($_SESSION['error']);
-            }
-        ?>
+	<a href="register.php">Rejestracja - załóż darmowe konto już teraz!</a>
 
-        <form action="zaloguj.php" method="post">
+	<h2>Logowanie</h2>
 
-            Login: <br />
-            <input type="text" name="login" <?= isset($_SESSION['login']) ? 'value="' . $_SESSION['login'] . '"' : '' ?>/> <br />
+	<form action="zaloguj.php" method="post">
+		Login: <br />
+		<input type="text" name="login">
 
-            Hasło: <br />
-            <input type="password" name="password" /> <br /><br />
+		<br />
 
-            <input type="submit" value="Zaloguj się">
+		Hasło: <br />
+		<input type="password" name="password">
 
-        </form>
-    </body>
-</html>
+		<br /><br>
+
+		<input type="submit" name="" value="Zaloguj">
+	</form>
+
+<?php
+	if(isset($_SESSION['blad']))
+		echo "<p>".$_SESSION['blad']."</p>";
+?>
+
+</body>
