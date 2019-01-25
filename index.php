@@ -1,5 +1,5 @@
 <?php
-	session_start();
+    session_start();
 
 	if(isset($_SESSION['zalogowany']) && ($_SESSION['zalogowany'] == true)) {
 		header('Location: gra.php');
@@ -22,30 +22,27 @@
 			<li><a href="#">Home</a></li>
 			<li><a href="#">About</a></li>
 			<li><a href="#">Services</a></li>
-			<li><a href="#">Portfolio</a></li>
+			<li><a href="register.php">Registration</a></li>
 			<li><a href="#">Our Team</a></li>
 			<li><a href="#">Contact Us</a></li>
 		</ul>
 	</div>
+    <div class="content">
 
-	<a href="register.php">Rejestracja - załóż darmowe konto już teraz!</a>
+        <form action="zaloguj.php" method="post">
+            Login <br />
+            <input type="text" name="login">
 
-	<h2>Logowanie</h2>
+            <br /><br />
 
-	<form action="zaloguj.php" method="post">
-		Login: <br />
-		<input type="text" name="login">
+            Password <br />
+            <input type="password" name="password">
 
-		<br />
+            <br /><br>
 
-		Hasło: <br />
-		<input type="password" name="password">
-
-		<br /><br>
-
-		<input type="submit" name="" value="Zaloguj">
-	</form>
-
+            <input type="submit" name="" value="Log in">
+        </form>
+    </div>
 <?php
 	if(isset($_SESSION['blad']))
 		echo "<p>".$_SESSION['blad']."</p>";
