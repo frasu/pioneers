@@ -26,9 +26,25 @@
 
         $verified = true;
 
+        //your site secret key
+	    $secret = '6Lf7ToYUAAAAAFh0xfMSOF8YmgvNzZ20Oah8rUGC';
+	    //get verify response data
+	    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret.'&response='.$_POST['g-recaptcha-response']);
+	    $responseData = json_decode($verifyResponse);
+
+		if(!($responseData->success)) {
+	    	$verified = false;
+	    	$_SESSION['e_bot'] = 'Jesteś botem. Przestań nim być i wróć ponownie.';
+	    }
+
         if (strlen($nick)<3 || strlen($nick)>20) {
             $verified = false;
             $_SESSION['e_nick'] = 'Masz za krótkiego albo za długiego!';
+        }
+
+        if(!ctype_alnum($nick)) {
+            $verified = false;
+            $_SESSION['e_nick'] = 'Nick może składać się tylko ze znaków alfanumerycznych';
         }
 
         if (!filter_var($emailB, FILTER_VALIDATE_EMAIL) || !($email == $emailB)) {
@@ -44,6 +60,11 @@
         if (!$pass==$pass1) {
             $verified = false;
             $_SESSION['e_pass'] = 'Hasła nie są takie same';
+        }
+
+        if(!isset($_POST['tos'])) {
+            $verified = false;
+            $_SESSION['e_tos'] = 'Nie dokonałeś akceptacji regulaminu';
         }
 
         if ($verified) {
@@ -171,31 +192,55 @@
 
 ?>
 
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-        <title>Osadnicy - gra przeglądarkowa</title>
-        <style>
-            .error
-            {
-                color:red;
-                margin-top: 10px;
-                margin-bottom: 10px;
-            }
-        </style>
-    </head>
-    <body>
-        Rejestracja nowego użytkownika<br /><br />
+<!DOCTYPE HTML>
+<html lang="pl">
+<head>
+	<meta charset="utf-8">
+	<title>Osadnicy - załóż darmowe konto!</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<script src='https://www.google.com/recaptcha/api.js?render=6Lf7ToYUAAAAALUtqMmQMBNz4CgebGZDBBuiNDwp'></script>
+	<link rel="stylesheet" type="text/css" href="style1.css">
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+	<style>
+		.error {
+			color:red;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+		.success {
+			color:green;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+	<script>
+	grecaptcha.ready(function() {
+		grecaptcha.execute('6Lf7ToYUAAAAALUtqMmQMBNz4CgebGZDBBuiNDwp', {action: 'register_user'})
+	.then(function(token) {
+		console.log(token)
+		document.getElementById('g-recaptcha-response').value = token;
+	});
+	});
+	</script>
 
         <?php
         if (isset($_SESSION['error'])) {
             echo $_SESSION['error'] . "<br /><br />";
             unset($_SESSION['error']);
         }
-        ?>
 
-        <form method="post">
+		if(isset($_SESSION['e_bot'])) {
+			echo $start.$_SESSION['e_bot'].$end;
+			unset($_SESSION['e_bot']);
+		}
+	?>
+
+	<div class="form">
+		<form method="post">
+			<input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
 
             Nickname: <br />
             <input type="text" name="nick" /> <br />
@@ -225,8 +270,65 @@
             error("e_pass1");
             ?>
 
-            <input type="submit" value="Rejestracja">
+			<label><input type="checkbox" name="tos" />Akceptuję regulamin</label><br />
+
+			<?php
+			error("e_tos");
+			?>
+			<br />
+			<input type="submit" name="" value="Rejestruj" />
+
 
         </form>
+    </div>
+        <div class="socialmedia">
+            <ul>
+                <li>
+                    <a href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span class="fa fa-facebook" aria-hidden="true"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span class="fa fa-github" aria-hidden="true"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span class="fa fa-lastfm" aria-hidden="true"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span class="fa fa-slack" aria-hidden="true"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span class="fa fa-wikipedia-w" aria-hidden="true"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </body>
 </html>
