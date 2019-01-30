@@ -1,4 +1,4 @@
-function odliczanie() {
+function timer() {
     var today = new Date();
 
     var day = today.getDate();
@@ -14,8 +14,9 @@ function odliczanie() {
     var second = today.getSeconds();
     if (second<10) second = "0" + second;
 
-    document.getElementById("zegar").innerHTML =
-        day+"/"+month+"/"+year+" "+hour+":"+minute+":"+second;
+    document.getElementById("clock").innerHTML =
+        //day+"/"+month+"/"+year+" "+hour+":"+minute+":"+second;
+        hour+":"+minute+":"+second;
 
-    setTimeout("odliczanie()",1000);
+    setTimeout("timer()",1000);
 }
