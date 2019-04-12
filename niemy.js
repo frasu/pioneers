@@ -126,6 +126,9 @@ clue = clues[x].toLowerCase();
 
 var downCounter = 0;
 
+var yes = new Audio("yes.wav");
+var no = new Audio("no.wav");
+
 var length = clue.length;
 
 var hidden = "";
@@ -178,7 +181,7 @@ function check(nr) {
             down = true;
         }
     }
-    var letter = "l" + nr;
+    const letter = "l" + nr;
 
     if (down) {
         document.getElementById(letter).style.border = "3px solid limegreen";
@@ -187,6 +190,7 @@ function check(nr) {
         document.getElementById(letter).style.cursor= "default";
 
         type_clue();
+        yes.play();
     } else {
         document.getElementById(letter).style.border = "3px solid darkred";
         document.getElementById(letter).style.color = "red";
@@ -196,10 +200,10 @@ function check(nr) {
 
         downCounter++;
 
-        var img = '<img class="center" alt="hanger" src="img/h' + downCounter + '.png">';
+        const img = '<img class="center" alt="hanger" src="img/h' + downCounter + '.png">';
 
         document.getElementById("hanger").innerHTML = img;
-
+        no.play();
     }
     var end = '<br />prawidłowe hasło:<br /><br /><b>' + clue +
     '</b><br /><br /><span class="reset" onclick="location.reload()">jeszcze raz?</span>';
